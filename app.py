@@ -1,25 +1,15 @@
-from flask import Flask, request, jsonify
+import streamlit as st
 import yfinance as yf
+import json
 
-app = Flask(__name__)
+ticker = st.text_input("Ticker", "AAPL").upper()
 
-@app.route('/price', methods=['GET'])
-def get_price():
-    ticker = request.args.get('ticker')
-    if not ticker:
-        return jsonify({"error": "Please provide a ticker symbol ?ticker=XYZ"}), 400
+if ticker:
+    data = yf.download(ticker, period="5d", interval="1d")
+    last_price = data["Close"].iloc[-1]
     
-    try:
-        stock = yf.Ticker(ticker)
-        data = stock.history(period="1d")
-        if data.empty:
-            return jsonify({"error": "Invalid ticker or no data found"}), 404
-
-        latest_price = data["Close"].iloc[-1]
-        return jsonify({"ticker": ticker.upper(), "price": round(latest_price, 2)})
+    # Display in Streamlit
+    st.metric(f"{ticker} Latest Price", f"${last_price:.2f}")
     
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-if __name__ == "__main__":
-    app.run(debug=True)
+    # Show JSON
+    st.json({"ticker": ticker, "last_price": last_price})
