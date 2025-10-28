@@ -76,14 +76,12 @@ def nth_prime(n):
     count = 0
     num = 2
     
-    while count < n:
+    while True:
         if is_prime(num):
             count += 1
             if count == n:
                 return num
         num += 1
-    
-    return num
 
 
 def prime_factors(n):
